@@ -5,12 +5,20 @@ version: "3.1"
 services:
  
     db:
-      image: mariadb:10.3
+      image: mysql
+      command: --default-authentication-plugin=mysql_native_password
       restart: always
       environment:
-        MYSQL_ROOT_PASSWORD: root
+        MYSQL_ROOT_PASSWORD: example
+      networks:
+        - web-db-net
+
+    adminer:
+      image: adminer
+      restart: always
       ports:
-        - "3306:3306"
+        - 8080:8080
+
       networks:
         - web-db-net
   
@@ -18,7 +26,7 @@ services:
       image: phpmyadmin
       restart: always
       ports:
-        - 8080:80
+        - 8081:80
       environment:
         - PMA_ARBITRARY=1
 
@@ -36,7 +44,6 @@ services:
       networks:
         - web-db-net
     
-
     php-fpm:
       build: phpdocker/php-fpm
       container_name: phpdocker-php-fpm
@@ -46,7 +53,6 @@ services:
         - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
       networks:
         - web-db-net
-
 
 networks:
     web-db-net:
